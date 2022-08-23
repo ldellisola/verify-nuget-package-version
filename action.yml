@@ -1,4 +1,4 @@
-name: 'Verify Nuget Package Version'
+name: verify-Nuget-package-version
 description: 'It will check if you are using an old version number in your package.'
 inputs:
   PROJECT_FILE_PATH:
