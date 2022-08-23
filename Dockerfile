@@ -15,4 +15,5 @@ RUN dotnet publish "VerifyNugetPackageVersion.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN ls .
 ENTRYPOINT ["dotnet", "VerifyNugetPackageVersion.dll"]
