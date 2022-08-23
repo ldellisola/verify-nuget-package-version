@@ -2,6 +2,7 @@
 using NuGet.Common;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using NuGet.Versioning;
 
 try
 {
@@ -54,9 +55,9 @@ try
         default
     );
 
-    if (remotePackageVersions.Any(t => t.Version == currentProjectVersion))
+    var nuGetVersions = remotePackageVersions as NuGetVersion[] ?? remotePackageVersions.ToArray();
+    if (nuGetVersions.Any(t => t.Version == currentProjectVersion))
         throw new ApplicationException($"The version {currentProjectVersion} is already in use!");
-
 }
 catch (Exception e)
 {
