@@ -16,4 +16,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 RUN ls .
-ENTRYPOINT ["dotnet", "VerifyNugetPackageVersion.dll"]
+ENTRYPOINT ["ls","."]
