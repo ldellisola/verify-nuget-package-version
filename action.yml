@@ -1,0 +1,21 @@
+# action.yml
+name: 'Verify Nuget Package Version'
+description: 'It will check if you are using an old version number in your package.'
+inputs:
+  PROJECT_FILE_PATH:
+    description: 'Path from the root directory to the project file where the version is defined'
+    required: true
+  VERSION_REGEX:
+    description: 'The regex pattern to extract the version defined in the project file'
+    required: false
+    default: '^\s*<PackageVersion>(.*)<\/PackageVersion>\s*$'
+  PACKAGE_ID:
+    description: 'Package ID. It will default to the poject\'s name'
+    required: false
+  PACKAGE_REGEX:
+    description: 'Regex pattern to extract the package id.'
+    required: false
+    default: '<PackageId>(.*)</PackageId>'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
