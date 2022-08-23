@@ -1,6 +1,9 @@
 name: verify-nuget-package-version
 description: 'It will check if you are using an old version number in your package.'
-icon: arrow-up-circle
+author: Lucas Dell Isola
+branding:
+  icon: 'arrow-up-circle'
+  color: 'white'
 inputs:
   PROJECT_FILE_PATH:
     description: 'Path from the root directory to the project file where the version is defined'
