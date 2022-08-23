@@ -10,14 +10,11 @@ inputs:
     required: true
   VERSION_REGEX:
     description: 'The regex pattern to extract the version defined in the project file'
-    required: false
     default: '^\s*<PackageVersion>(.*)<\/PackageVersion>\s*$'
   PACKAGE_ID:
     description: 'Package ID. It will default to the projects name'
-    required: false
   PACKAGE_REGEX:
     description: 'Regex pattern to extract the package id.'
-    required: false
     default: '<PackageId>(.*)</PackageId>'
 runs:
   using: 'docker'
