@@ -16,8 +16,6 @@ try
     
     var file = await File.ReadAllTextAsync(projectFile.FullName);
     
-    Debug($"    Content: {file}");
-
     var versionPattern = new Regex(
         Environment.GetEnvironmentVariable("INPUT_VERSION_REGEX")
         ?? throw new ArgumentNullException("INPUT_VERSION_REGEX"),
@@ -28,7 +26,7 @@ try
     
     var packageId = Environment.GetEnvironmentVariable("INPUT_PACKAGE_ID");
 
-    if (packageId is null)
+    if (string.IsNullOrWhiteSpace(packageId))
     {
         Debug("PackageID not defined as argument");
         
