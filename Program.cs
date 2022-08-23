@@ -43,6 +43,7 @@ try
         var packageMatch = packageRegex.Match(file);
 
         packageId = packageMatch.Success ? packageMatch.Groups[1].Value : projectFile.Name.Replace(".csproj",string.Empty);
+        Debug($"Possible package ID: {projectFile.Name.Replace(".csproj",string.Empty)}");
     }
     
     Debug($"Package ID: {packageId}");
