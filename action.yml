@@ -1,4 +1,3 @@
-# action.yml
 name: 'Verify Nuget Package Version'
 description: 'It will check if you are using an old version number in your package.'
 inputs:
