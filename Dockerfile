@@ -15,4 +15,4 @@ RUN dotnet publish "VerifyNugetPackageVersion.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["ls"," -R .. | grep \":$\" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'"]
+ENTRYPOINT ["ls","/github/workspace & ls /github"]
