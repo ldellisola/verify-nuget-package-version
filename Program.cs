@@ -7,25 +7,25 @@ using NuGet.Versioning;
 try
 {
     var projectFile = new FileInfo(
-        Environment.GetEnvironmentVariable("PROJECT_FILE_PATH")
-        ?? throw new ArgumentNullException("PROJECT_FILE_PATH")
+        Environment.GetEnvironmentVariable("INPUT_PROJECT_FILE_PATH")
+        ?? throw new ArgumentNullException("INPUT_PROJECT_FILE_PATH")
     );
     
     var file = await File.ReadAllTextAsync(projectFile.FullName);
 
     var versionPattern = new Regex(
-        Environment.GetEnvironmentVariable("VERSION_REGEX")
-        ?? throw new ArgumentNullException("VERSION_REGEX"),
+        Environment.GetEnvironmentVariable("INPUT_VERSION_REGEX")
+        ?? throw new ArgumentNullException("INPUT_VERSION_REGEX"),
         RegexOptions.Multiline 
     );
     
-    var packageId = Environment.GetEnvironmentVariable("PACKAGE_ID");
+    var packageId = Environment.GetEnvironmentVariable("INPUT_PACKAGE_ID");
 
     if (packageId is null)
     {
         var packageRegex = new Regex(
-            Environment.GetEnvironmentVariable("PACKAGE_REGEX")
-            ?? throw new ArgumentNullException("PACKAGE_REGEX"),
+            Environment.GetEnvironmentVariable("INPUT_PACKAGE_REGEX")
+            ?? throw new ArgumentNullException("INPUT_PACKAGE_REGEX"),
             RegexOptions.Multiline 
         );
 
