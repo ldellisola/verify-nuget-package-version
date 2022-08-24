@@ -88,6 +88,7 @@ try
 catch (Exception e)
 {
     Console.WriteLine($"::error file=Program.cs, title={e.Source}::{e.Message}");
+    Environment.Exit(-1);
 }
 
 void Debug(string text)
