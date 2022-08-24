@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using NuGet.Common;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
@@ -51,7 +52,7 @@ try
 
     if (versionMatch.Success)
     {
-        currentProjectVersion = Version.Parse(versionMatch.Groups[1].Value);
+        currentProjectVersion = ParseVersion(versionMatch.Groups[1].Value);
         Debug($"Found current version: {currentProjectVersion}");
     }
     else
@@ -66,18 +67,18 @@ try
     var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
     
     Debug("Looking for specific package ID...");
-    var remotePackageVersions = await resource.GetAllVersionsAsync(
+    var remotePackageVersions = (await resource.GetAllVersionsAsync(
         packageId,
         new NullSourceCacheContext(),
         NullLogger.Instance,
         default
-    );
+    )).ToList();
 
-    var nuGetVersions = remotePackageVersions as NuGetVersion[] ?? remotePackageVersions.ToArray();
-    if (nuGetVersions.Any(t => t.Version == currentProjectVersion))
+    if (remotePackageVersions.Any(t => t.Version == currentProjectVersion))
         throw new ApplicationException($"The version {currentProjectVersion} is already in use!");
+    
 
-    foreach (var version in nuGetVersions)
+    foreach (var version in remotePackageVersions)
     {
         Debug($"Found version: {version.Version}");
     }
@@ -93,4 +94,17 @@ void Debug(string text)
 {
     Console.WriteLine($"::debug::{text}");
 }
+
+Version ParseVersion(string value)
+{
+    var v = Version.Parse(value);
+
+    return new Version(
+        v.Major is -1 ? 0 : v.Major,
+        v.Minor is -1 ? 0 : v.Minor,
+        v.Build is -1 ? 0 : v.Build,
+        v.Revision is -1 ? 0 : v.Revision
+    );
+}
+ 
 
