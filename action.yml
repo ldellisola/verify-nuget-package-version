@@ -18,4 +18,4 @@ inputs:
     default: '<PackageId>(.*)</PackageId>'
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'ghcr.io/ldellisola/verify-nuget-package-version:latest'
