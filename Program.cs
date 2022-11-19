@@ -1,9 +1,8 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using NuGet.Common;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
-using NuGet.Versioning;
+
 
 try
 {
@@ -11,78 +10,71 @@ try
         Environment.GetEnvironmentVariable("INPUT_PROJECT_FILE_PATH")
         ?? throw new ArgumentNullException("INPUT_PROJECT_FILE_PATH")
     );
-    
+
     Debug($"Project file: {projectFile.FullName}");
     Debug($"    Exists? {projectFile.Exists}");
-    
+
     var file = await File.ReadAllTextAsync(projectFile.FullName);
-    
+
     var versionPattern = new Regex(
         Environment.GetEnvironmentVariable("INPUT_VERSION_REGEX")
         ?? throw new ArgumentNullException("INPUT_VERSION_REGEX"),
-        RegexOptions.Multiline 
+        RegexOptions.Multiline
     );
-    
+
     Debug($"Version Pattern: {versionPattern}");
-    
+
     var packageId = Environment.GetEnvironmentVariable("INPUT_PACKAGE_ID");
 
     if (string.IsNullOrWhiteSpace(packageId))
     {
         Debug("PackageID not defined as argument");
-        
+
         var packageRegex = new Regex(
             Environment.GetEnvironmentVariable("INPUT_PACKAGE_REGEX")
             ?? throw new ArgumentNullException("INPUT_PACKAGE_REGEX"),
-            RegexOptions.Multiline 
+            RegexOptions.Multiline
         );
-        
+
         Debug($"Package ID Pattern: {packageRegex}");
 
         var packageMatch = packageRegex.Match(file);
 
-        packageId = packageMatch.Success ? packageMatch.Groups[1].Value : projectFile.Name.Replace(".csproj",string.Empty);
-        Debug($"Possible package ID: {projectFile.Name.Replace(".csproj",string.Empty)}");
+        packageId = packageMatch.Success
+            ? packageMatch.Groups[1].Value
+            : projectFile.Name.Replace(".csproj", string.Empty);
+        Debug($"Possible package ID: {projectFile.Name.Replace(".csproj", string.Empty)}");
     }
-    
-    Debug($"Package ID: {packageId}");
-    
-    var versionMatch = versionPattern.Match(file);
-    Version currentProjectVersion;
 
-    if (versionMatch.Success)
-    {
-        currentProjectVersion = ParseVersion(versionMatch.Groups[1].Value);
-        Debug($"Found current version: {currentProjectVersion}");
-    }
-    else
-    {
-        Console.WriteLine("::warning file=Program.cs,title=Project version not found::We couldn't identify the version of the project, defaulting to 1.0.0");
-        currentProjectVersion = Version.Parse("1.0.0");
-    }
-    
+    Debug($"Package ID: {packageId}");
+
+    var versionMatch = versionPattern.Match(file);
+    var currentProjectVersion = versionMatch.Success ? versionMatch.Groups[1].Value : "1.0.0";
+
+    if (versionMatch.Success is false)
+        Console.WriteLine(
+            "::warning file=Program.cs,title=Project version not found::We couldn't identify the version of the project, defaulting to 1.0.0");
+
     Debug("Getting data from NuGet...");
 
     var repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
     var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
-    
+
     Debug("Looking for specific package ID...");
-    var remotePackageVersions = (await resource.GetAllVersionsAsync(
+
+    var remotePackageVersions = await resource.GetAllVersionsAsync(
         packageId,
         new NullSourceCacheContext(),
         NullLogger.Instance,
         default
-    )).ToList();
+    );
 
-    if (remotePackageVersions.Any(t => t.Version == currentProjectVersion))
+    ArgumentNullException.ThrowIfNull(remotePackageVersions);
+
+    if (remotePackageVersions.Any(t =>
+            t.ToNormalizedString().Equals(currentProjectVersion, StringComparison.OrdinalIgnoreCase)))
         throw new ApplicationException($"The version {currentProjectVersion} is already in use!");
-    
 
-    foreach (var version in remotePackageVersions)
-    {
-        Debug($"Found version: {version.Version}");
-    }
-    
     Debug("No matching version found. Success!");
 }
 catch (Exception e)
@@ -95,17 +87,3 @@ void Debug(string text)
 {
     Console.WriteLine($"::debug::{text}");
 }
-
-Version ParseVersion(string value)
-{
-    var v = Version.Parse(value);
-
-    return new Version(
-        v.Major is -1 ? 0 : v.Major,
-        v.Minor is -1 ? 0 : v.Minor,
-        v.Build is -1 ? 0 : v.Build,
-        v.Revision is -1 ? 0 : v.Revision
-    );
-}
- 
-
